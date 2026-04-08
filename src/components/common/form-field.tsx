@@ -27,10 +27,13 @@ export const FormField = <T extends Record<string, unknown>>({ label, name, plac
     id: name,
     name: name,
     placeholder: placeholder,
-    className: `bg-background/50 ${showPasswordToggle ? 'pr-10' : ''} ${isError ? 'border-destructive focus-visible:ring-destructive' : ''}`,
+    className: `bg-background/50 ${showPasswordToggle ? 'pr-10' : ''} ${isError ? 'border-destructive focus-visible:ring-destructive' : ''} ${type === 'date' ? 'cursor-pointer' : ''}`,
     onChange: formik.handleChange,
     onBlur: formik.handleBlur,
     value: (formik.values[name] as string | number | readonly string[]) ?? '',
+    onClick: (e: React.MouseEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (type === 'date' && 'showPicker' in e.currentTarget) (e.currentTarget as HTMLInputElement).showPicker()
+    },
   }
 
   return (

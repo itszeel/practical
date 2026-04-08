@@ -3,7 +3,7 @@ import { type TaskValues } from '@/schema/validations'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ClipboardList, Edit2, Trash2, Clock, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { ClipboardList, Edit2, Trash2, Clock, AlertCircle, CheckCircle2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useTasks } from '@/contexts/tasks-context'
 import { TaskPagination } from '@/components/dashboard/task-pagination'
 
@@ -13,7 +13,20 @@ interface TaskListProps {
 }
 
 export function TaskList({ onEdit, onDelete }: TaskListProps) {
-  const { tasks, filteredTasks, currentPage, pageSize } = useTasks()
+  const { tasks, filteredTasks, currentPage, pageSize, sortBy, setSortBy, sortOrder, setSortOrder } = useTasks()
+
+  const handleSort = (field: 'dueDate' | 'title' | 'status' | 'priority' | 'description') => {
+    if (sortBy === field) setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    else {
+      setSortBy(field)
+      setSortOrder('asc')
+    }
+  }
+
+  const renderSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className='h-3 w-3 opacity-0 transition-opacity group-hover:opacity-40' />
+    return sortOrder === 'asc' ? <ArrowUp className='h-3 w-3 text-blue-600 dark:text-blue-400' /> : <ArrowDown className='h-3 w-3 text-blue-600 dark:text-blue-400' />
+  }
 
   const paginatedTasks = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
@@ -87,21 +100,32 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
               <Table>
                 <TableHeader className='sticky top-0 z-10 bg-zinc-50/95 backdrop-blur dark:bg-zinc-800/95'>
                   <TableRow>
-                    <TableHead className='font-semibold'>Title</TableHead>
-                    <TableHead className='font-semibold'>Status</TableHead>
-                    <TableHead className='font-semibold'>Priority</TableHead>
-                    <TableHead className='font-semibold'>Due Date</TableHead>
-                    <TableHead className='text-right font-semibold'>Actions</TableHead>
+                    <TableHead className='group cursor-pointer font-semibold select-none' onClick={() => handleSort('title')}>
+                      <div className='flex items-center gap-1.5'>Title {renderSortIcon('title')}</div>
+                    </TableHead>
+                    <TableHead className='group cursor-pointer font-semibold select-none' onClick={() => handleSort('description')}>
+                      <div className='flex items-center gap-1.5'>Description {renderSortIcon('description')}</div>
+                    </TableHead>
+                    <TableHead className='group cursor-pointer font-semibold select-none' onClick={() => handleSort('status')}>
+                      <div className='flex items-center gap-1.5'>Status {renderSortIcon('status')}</div>
+                    </TableHead>
+                    <TableHead className='group cursor-pointer font-semibold select-none' onClick={() => handleSort('priority')}>
+                      <div className='flex items-center gap-1.5'>Priority {renderSortIcon('priority')}</div>
+                    </TableHead>
+                    <TableHead className='group cursor-pointer font-semibold select-none' onClick={() => handleSort('dueDate')}>
+                      <div className='flex items-center gap-1.5'>Due Date {renderSortIcon('dueDate')}</div>
+                    </TableHead>
+                    <TableHead className='text-right font-semibold select-none'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedTasks.map(task => (
                     <TableRow key={task.id} className='transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50'>
                       <TableCell>
-                        <div className='flex flex-col gap-0.5'>
-                          <span className='font-medium'>{task.title}</span>
-                          <span className='text-muted-foreground line-clamp-1 text-xs'>{task.description}</span>
-                        </div>
+                        <span className='font-medium'>{task.title}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className='text-muted-foreground line-clamp-1 text-xs'>{task.description}</span>
                       </TableCell>
                       <TableCell>{getStatusBadge(task.status)}</TableCell>
                       <TableCell>{getPriorityBadge(task.priority)}</TableCell>
@@ -114,7 +138,7 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
                           <Button variant='ghost' size='icon' onClick={() => onEdit(task)} className='h-8 w-8 cursor-pointer hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30'>
                             <Edit2 className='h-4 w-4' />
                           </Button>
-                          <Button variant='ghost' size='icon' onClick={() => task.id && onDelete(task.id)} className='hover:bg-destructive/10 hover:text-destructive h-8 w-8 cursor-pointer'>
+                          <Button variant='ghost' size='icon' onClick={() => task.id && onDelete(task.id)} className='hover:text-destructive h-8 w-8 cursor-pointer'>
                             <Trash2 className='h-4 w-4' />
                           </Button>
                         </div>

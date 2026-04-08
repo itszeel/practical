@@ -18,6 +18,11 @@ interface TasksContextType {
   dateRange: { start: string; end: string }
   setDateRange: Dispatch<SetStateAction<{ start: string; end: string }>>
 
+  sortBy: 'dueDate' | 'title' | 'status' | 'priority' | 'description'
+  setSortBy: (val: 'dueDate' | 'title' | 'status' | 'priority' | 'description') => void
+  sortOrder: 'asc' | 'desc'
+  setSortOrder: (val: 'asc' | 'desc') => void
+
   currentPage: number
   setCurrentPage: Dispatch<SetStateAction<number>>
   pageSize: number
@@ -25,6 +30,9 @@ interface TasksContextType {
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined)
+
+const PRIORITY_WEIGHTS = { High: 3, Medium: 2, Low: 1 }
+const STATUS_WEIGHTS = { Done: 3, 'In Progress': 2, Todo: 1 }
 
 export function TasksProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<TaskValues[]>(() => {
@@ -58,11 +66,14 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const [priorityFilter, setPriorityFilter] = useState<string>('All')
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' })
 
+  const [sortBy, setSortBy] = useState<'dueDate' | 'title' | 'status' | 'priority' | 'description'>('dueDate')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
+    const filtered = tasks.filter(task => {
       const matchesStatus = statusFilter === 'All' || task.status === statusFilter
       const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter
       const query = searchQuery.toLowerCase()
@@ -73,12 +84,27 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
       return matchesStatus && matchesPriority && matchesSearch && matchesDate
     })
-  }, [tasks, searchQuery, statusFilter, priorityFilter, dateRange])
+
+    return [...filtered].sort((a, b) => {
+      let comparison = 0
+      if (sortBy === 'priority') {
+        comparison = PRIORITY_WEIGHTS[a.priority as keyof typeof PRIORITY_WEIGHTS] - PRIORITY_WEIGHTS[b.priority as keyof typeof PRIORITY_WEIGHTS]
+      } else if (sortBy === 'status') {
+        comparison = STATUS_WEIGHTS[a.status as keyof typeof STATUS_WEIGHTS] - STATUS_WEIGHTS[b.status as keyof typeof STATUS_WEIGHTS]
+      } else {
+        const valA = (a[sortBy] || '').toString()
+        const valB = (b[sortBy] || '').toString()
+        comparison = valA.localeCompare(valB)
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+  }, [tasks, searchQuery, statusFilter, priorityFilter, dateRange, sortBy, sortOrder])
 
   // Reset to page 1 if filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, statusFilter, priorityFilter, dateRange, pageSize])
+  }, [searchQuery, statusFilter, priorityFilter, dateRange, pageSize, sortBy, sortOrder])
 
   const syncStorage = (newTasks: TaskValues[]) => {
     setTasks(newTasks)
@@ -117,6 +143,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         setPriorityFilter,
         dateRange,
         setDateRange,
+        sortBy,
+        setSortBy,
+        sortOrder,
+        setSortOrder,
         currentPage,
         setCurrentPage,
         pageSize,
