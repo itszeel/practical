@@ -8,31 +8,12 @@ import { useTasks } from '@/contexts/tasks-context'
 import { TaskPagination } from '@/components/dashboard/task-pagination'
 
 interface TaskListProps {
-  tasks: TaskValues[]
   onEdit: (task: TaskValues) => void
   onDelete: (id: string) => void
 }
 
-export function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
-  const { searchQuery, statusFilter, priorityFilter, dateRange, currentPage, pageSize } = useTasks()
-
-  const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      // status
-      const matchesStatus = statusFilter === 'All' || task.status === statusFilter
-      // priority
-      const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter
-      // search
-      const query = searchQuery.toLowerCase()
-      const matchesSearch = task.title.toLowerCase().includes(query) || task.description.toLowerCase().includes(query)
-      // date
-      let matchesDate = true
-      if (dateRange.start) matchesDate = matchesDate && task.dueDate >= dateRange.start
-      if (dateRange.end) matchesDate = matchesDate && task.dueDate <= dateRange.end
-
-      return matchesStatus && matchesPriority && matchesSearch && matchesDate
-    })
-  }, [tasks, searchQuery, statusFilter, priorityFilter, dateRange])
+export function TaskList({ onEdit, onDelete }: TaskListProps) {
+  const { tasks, filteredTasks, currentPage, pageSize } = useTasks()
 
   const paginatedTasks = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
@@ -84,14 +65,14 @@ export function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
   }
 
   return (
-    <div className='overflow-hidden rounded-xl bg-white shadow-xl dark:bg-zinc-900'>
-      <div className='flex flex-col gap-5 px-6 pt-6 pb-4'>
+    <div className='flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-xl dark:bg-zinc-900'>
+      <div className='flex shrink-0 flex-col gap-5 px-6 pt-6 pb-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-xl font-semibold tracking-tight'>Task Overview</h2>
         </div>
       </div>
 
-      <div className='p-0 sm:p-6 sm:pt-0'>
+      <div className='flex min-h-0 flex-1 flex-col p-0 sm:p-6 sm:pt-0'>
         {filteredTasks.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
             <div className='mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-800'>
@@ -101,10 +82,10 @@ export function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
             <p className='text-muted-foreground mb-6'>{tasks.length === 0 ? 'Start by creating your first task above.' : 'Try adjusting your search or filters.'}</p>
           </div>
         ) : (
-          <div className='flex flex-col gap-4'>
-            <div className='overflow-x-auto rounded-lg border border-zinc-100 dark:border-zinc-800'>
+          <div className='flex min-h-0 flex-1 flex-col gap-4'>
+            <div className='min-h-0 flex-1 overflow-auto rounded-lg border border-zinc-100 dark:border-zinc-800'>
               <Table>
-                <TableHeader className='bg-zinc-50/80 dark:bg-zinc-800/50'>
+                <TableHeader className='sticky top-0 z-10 bg-zinc-50/95 backdrop-blur dark:bg-zinc-800/95'>
                   <TableRow>
                     <TableHead className='font-semibold'>Title</TableHead>
                     <TableHead className='font-semibold'>Status</TableHead>
@@ -144,7 +125,9 @@ export function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
               </Table>
             </div>
 
-            <TaskPagination totalPages={totalPages} filteredCount={filteredTasks.length} />
+            <div className='shrink-0 pt-2'>
+              <TaskPagination totalPages={totalPages} filteredCount={filteredTasks.length} />
+            </div>
           </div>
         )}
       </div>

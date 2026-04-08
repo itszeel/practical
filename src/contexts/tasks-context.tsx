@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, ReactNode, type Dispatch, type SetStateAction, useEffect } from 'react'
+import { createContext, useContext, useState, ReactNode, type Dispatch, type SetStateAction, useEffect, useMemo } from 'react'
 import { type TaskValues } from '@/schema/validations'
 import { toast } from 'sonner'
 
 interface TasksContextType {
   tasks: TaskValues[]
+  filteredTasks: TaskValues[]
   addTask: (task: TaskValues) => void
   updateTask: (task: TaskValues) => void
   deleteTask: (id: string) => void
@@ -60,6 +61,20 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
 
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const matchesStatus = statusFilter === 'All' || task.status === statusFilter
+      const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter
+      const query = searchQuery.toLowerCase()
+      const matchesSearch = task.title.toLowerCase().includes(query) || task.description.toLowerCase().includes(query)
+      let matchesDate = true
+      if (dateRange.start) matchesDate = matchesDate && task.dueDate >= dateRange.start
+      if (dateRange.end) matchesDate = matchesDate && task.dueDate <= dateRange.end
+
+      return matchesStatus && matchesPriority && matchesSearch && matchesDate
+    })
+  }, [tasks, searchQuery, statusFilter, priorityFilter, dateRange])
+
   // Reset to page 1 if filters change
   useEffect(() => {
     setCurrentPage(1)
@@ -90,6 +105,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     <TasksContext.Provider
       value={{
         tasks,
+        filteredTasks,
         addTask,
         updateTask,
         deleteTask,
