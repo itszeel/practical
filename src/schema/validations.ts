@@ -17,6 +17,16 @@ export const loginSchema = z.object({
   password: z.string().nonempty('Password is required'),
 })
 
+export const taskSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, 'Title is required').max(100, 'Title is too long'),
+  description: z.string().min(1, 'Description is required'),
+  status: z.enum(['Todo', 'In Progress', 'Done']).default('Todo'),
+  priority: z.enum(['Low', 'Medium', 'High']).default('Medium'),
+  dueDate: z.string().nonempty('Due date is required'),
+})
+
 // Infer TypeScript types from the schemas
 export type SignupFormValues = z.infer<typeof signupSchema>
 export type LoginFormValues = z.infer<typeof loginSchema>
+export type TaskValues = z.infer<typeof taskSchema>

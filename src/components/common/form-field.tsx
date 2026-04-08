@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Eye, EyeOff } from 'lucide-react'
 import { FormikProps } from 'formik'
 
@@ -13,13 +14,24 @@ interface FormFieldProps<T extends Record<string, unknown>> {
   showPasswordToggle?: boolean
   className?: string
   rightElement?: React.ReactNode
+  isTextArea?: boolean
 }
 
-export const FormField = <T extends Record<string, unknown>>({ label, name, placeholder, type = 'text', formik, showPasswordToggle = false, className, rightElement }: FormFieldProps<T>) => {
+export const FormField = <T extends Record<string, unknown>>({ label, name, placeholder, type = 'text', formik, showPasswordToggle = false, className, rightElement, isTextArea = false }: FormFieldProps<T>) => {
   const [showPassword, setShowPassword] = React.useState(false)
   const isError = Boolean(formik.touched[name] && formik.errors[name])
 
   const inputType = showPasswordToggle ? (showPassword ? 'text' : 'password') : type
+
+  const commonProps = {
+    id: name,
+    name: name,
+    placeholder: placeholder,
+    className: `bg-background/50 ${showPasswordToggle ? 'pr-10' : ''} ${isError ? 'border-destructive focus-visible:ring-destructive' : ''}`,
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    value: (formik.values[name] as string | number | readonly string[]) ?? '',
+  }
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -31,16 +43,7 @@ export const FormField = <T extends Record<string, unknown>>({ label, name, plac
       </div>
 
       <div className='relative'>
-        <Input
-          id={name}
-          name={name}
-          type={inputType}
-          placeholder={placeholder}
-          className={`bg-background/50 ${showPasswordToggle ? 'pr-10' : ''} ${isError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={(formik.values[name] as string | number | readonly string[]) ?? ''}
-        />
+        {isTextArea ? <Textarea {...commonProps} /> : <Input {...commonProps} type={inputType} />}
 
         {showPasswordToggle && (
           <button type='button' onClick={() => setShowPassword(!showPassword)} className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer transition-colors'>
