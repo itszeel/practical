@@ -110,7 +110,7 @@ const TaskColumn = ({
 
   return (
     <div
-      className={`flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-colors dark:border-zinc-800 dark:bg-zinc-900 ${draggedOverColumn === column ? 'bg-zinc-100 dark:bg-zinc-800/80' : ''}`}
+      className={`flex min-h-[250px] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-colors lg:h-full lg:min-h-0 dark:border-zinc-800 dark:bg-zinc-900 ${draggedOverColumn === column ? 'bg-zinc-100 dark:bg-zinc-800/80' : ''}`}
       onDragOver={e => {
         e.preventDefault()
         onDragOver(column)
@@ -158,7 +158,7 @@ export function TaskBoard({ onEdit, onDelete }: TaskBoardProps) {
   }
 
   return (
-    <div className='grid h-full min-h-0 grid-cols-1 gap-6 md:grid-cols-3'>
+    <div className='grid min-h-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3 lg:h-full'>
       {COLUMNS.map(column => (
         <TaskColumn key={column} column={column} tasks={filteredTasks.filter(t => t.status === column)} onEdit={onEdit} onDelete={onDelete} draggedOverColumn={draggedOverColumn} onDragOver={setDraggedOverColumn} onDragLeave={handleDragLeave} onDrop={onDrop} />
       ))}

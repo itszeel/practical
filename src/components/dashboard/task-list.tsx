@@ -78,14 +78,14 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
   }
 
   return (
-    <div className='flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-xl dark:bg-zinc-900'>
+    <div className='flex flex-col rounded-xl bg-white shadow-xl lg:h-full lg:overflow-hidden dark:bg-zinc-900'>
       <div className='flex shrink-0 flex-col gap-5 px-6 pt-6 pb-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-xl font-semibold tracking-tight'>Task Overview</h2>
         </div>
       </div>
 
-      <div className='flex min-h-0 flex-1 flex-col p-0 sm:p-6 sm:pt-0'>
+      <div className='flex flex-col p-0 sm:p-6 sm:pt-0 lg:min-h-0 lg:flex-1'>
         {filteredTasks.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
             <div className='mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-800'>
@@ -95,8 +95,8 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
             <p className='text-muted-foreground mb-6'>{tasks.length === 0 ? 'Start by creating your first task above.' : 'Try adjusting your search or filters.'}</p>
           </div>
         ) : (
-          <div className='flex min-h-0 flex-1 flex-col gap-4'>
-            <div className='min-h-0 flex-1 overflow-auto rounded-lg border border-zinc-100 dark:border-zinc-800'>
+          <div className='flex flex-col gap-4 lg:min-h-0 lg:flex-1'>
+            <div className='overflow-auto rounded-lg border border-zinc-100 lg:min-h-0 lg:flex-1 dark:border-zinc-800'>
               <Table>
                 <TableHeader className='sticky top-0 z-10 bg-zinc-50/95 backdrop-blur dark:bg-zinc-800/95'>
                   <TableRow>

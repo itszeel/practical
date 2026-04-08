@@ -51,12 +51,12 @@ const Dashboard = () => {
   }, [tasks])
 
   return (
-    <div className='flex h-screen flex-col overflow-hidden bg-zinc-50 p-4 sm:p-8 dark:bg-zinc-950'>
-      <div className='mx-auto flex w-full max-w-6xl flex-1 flex-col space-y-6 overflow-hidden'>
-        <div className='flex shrink-0 flex-col items-center justify-between gap-4 sm:flex-row'>
+    <div className='flex min-h-screen flex-col bg-zinc-50 p-4 pb-8 sm:p-8 lg:h-screen lg:min-h-0 lg:overflow-hidden dark:bg-zinc-950'>
+      <div className='mx-auto flex w-full max-w-6xl flex-1 flex-col space-y-5 sm:space-y-6 lg:overflow-hidden'>
+        <div className='flex shrink-0 flex-col items-start justify-between gap-3 sm:flex-row sm:items-center'>
           <div>
-            <h1 className='text-3xl font-bold tracking-tight'>WorkSpace</h1>
-            <p className='text-muted-foreground'>Welcome back, {userInfo.name || 'User'}</p>
+            <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>WorkSpace</h1>
+            <p className='text-muted-foreground text-sm sm:text-base'>Welcome back, {userInfo.name || 'User'}</p>
           </div>
           <div className='flex items-center gap-2'>
             <Button variant='outline' onClick={handleLogout} className='cursor-pointer gap-2'>
@@ -74,8 +74,8 @@ const Dashboard = () => {
         </div>
 
         <Tabs defaultValue='table' className='flex min-h-0 flex-1 flex-col'>
-          <div className='mb-4 flex shrink-0 items-center justify-between'>
-            <TabsList className='grid w-[240px] grid-cols-2'>
+          <div className='mb-4 flex shrink-0 items-center justify-between gap-3'>
+            <TabsList className='grid w-[200px] grid-cols-2 sm:w-[240px]'>
               <TabsTrigger value='table' className='cursor-pointer'>
                 Table
               </TabsTrigger>
@@ -90,15 +90,17 @@ const Dashboard = () => {
               }}
               className='cursor-pointer gap-2 shadow-sm'
             >
-              <Plus className='h-4 w-4' /> New Task
+              <Plus className='h-4 w-4' />
+              <span className='hidden sm:inline'>New Task</span>
+              <span className='sm:hidden'>New</span>
             </Button>
           </div>
 
-          <TabsContent value='table' className='m-0 min-h-0 flex-1 flex-col overflow-y-auto pb-4 focus-visible:ring-0 focus-visible:outline-none data-[state=active]:flex'>
+          <TabsContent value='table' className='m-0 min-h-[400px] flex-1 flex-col pb-4 focus-visible:ring-0 focus-visible:outline-none data-[state=active]:flex lg:min-h-0 lg:overflow-y-auto'>
             <TaskList onEdit={handleEditTask} onDelete={handleDeleteTask} />
           </TabsContent>
 
-          <TabsContent value='board' className='m-0 min-h-0 flex-1 flex-col pb-4 focus-visible:ring-0 focus-visible:outline-none data-[state=active]:flex'>
+          <TabsContent value='board' className='m-0 min-h-[400px] flex-1 flex-col overflow-x-auto pb-4 focus-visible:ring-0 focus-visible:outline-none data-[state=active]:flex lg:min-h-0'>
             <TaskBoard onEdit={handleEditTask} onDelete={handleDeleteTask} />
           </TabsContent>
         </Tabs>
